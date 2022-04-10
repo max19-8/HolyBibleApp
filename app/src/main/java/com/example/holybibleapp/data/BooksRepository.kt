@@ -23,8 +23,6 @@ interface BooksRepository {
             } else {
                 BooksData.Success(booksCacheMapper.map(booksCacheList))
             }
-
-
         } catch (e: Exception) {
             BooksData.Fail(e)
         }

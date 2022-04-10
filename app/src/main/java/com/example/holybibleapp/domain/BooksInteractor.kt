@@ -5,9 +5,9 @@ import com.example.holybibleapp.data.BooksRepository
 
 interface BooksInteractor {
 
-   suspend fun fetchBooks(): BookDomain
+   suspend fun fetchBooks(): BooksDomain
 
     class Base(private val books: BooksRepository,private val mapper:BooksDataToDomainMapper): BooksInteractor {
-        override suspend fun fetchBooks(): BookDomain = books.fetchBooks().map(mapper)
+        override suspend fun fetchBooks(): BooksDomain = books.fetchBooks().map(mapper)
     }
 }

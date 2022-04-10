@@ -12,4 +12,9 @@ interface BooksCacheMapper:Abstract.Mapper {
             bookDb.map(mapper)
         }
     }
+    class Test(private val mapper:BookCacheMapper) : BooksCacheMapper{
+        override fun map(books: List<BookDb>): List<Book> = books.map { bookDb ->
+            bookDb.map(mapper)
+        }
+    }
 }
