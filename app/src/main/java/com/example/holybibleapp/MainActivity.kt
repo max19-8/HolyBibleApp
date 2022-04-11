@@ -14,7 +14,11 @@ class MainActivity : AppCompatActivity() {
         val viewModel = (application as BibleApp).mainViewModel
 
         val recyclerVIew = findViewById<RecyclerView>(R.id.recyclerView)
-        val adapter = BibleAdapter()
+        val adapter = BibleAdapter(object :BibleAdapter.Retry{
+            override fun tryAgain() {
+                viewModel.fetchBooks()
+            }
+        })
 
         recyclerVIew.adapter =adapter
 
@@ -22,6 +26,5 @@ class MainActivity : AppCompatActivity() {
             adapter.update(it)
         }
         viewModel.fetchBooks()
-        //TODO observe fail
     }
 }

@@ -3,39 +3,77 @@ package com.example.holybibleapp.presentation
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.holybibleapp.R
-import com.example.holybibleapp.core.Book
 
-class BibleAdapter : RecyclerView.Adapter<BibleAdapter.BibleVIewHolder>() {
+class BibleAdapter(private val retry:Retry) : RecyclerView.Adapter<BibleAdapter.BibleViewHolder>() {
 
-    private val books = ArrayList<Book>()
+    private val books = ArrayList<BookUi>()
 
-    fun update(new:List<Book>){
+    fun update(new: List<BookUi>) {
         books.clear()
         books.addAll(new)
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BibleVIewHolder {
-       val view = LayoutInflater.from(parent.context).inflate(R.layout.book_layout,parent,false)
-        //todo progress and fail
-        return BibleVIewHolder(view)
+    override fun getItemViewType(position: Int) = when (books[position]) {
+        is BookUi.Base -> 0
+        is BookUi.Fail -> 1
+        is BookUi.Progress -> 2
     }
 
-    override fun onBindViewHolder(holder: BibleVIewHolder, position: Int) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
+        0 -> BibleViewHolder.Base(R.layout.book_layout.makeView(parent))
+        1 -> BibleViewHolder.Fail(R.layout.fail_fullscreen.makeView(parent),retry)
+        else -> BibleViewHolder.FullsScreenProgress(R.layout.progress_fullscreen.makeView(parent))
+    }
+
+
+    override fun onBindViewHolder(holder: BibleViewHolder, position: Int) {
         holder.bind(books[position])
     }
 
     override fun getItemCount() = books.size
 
 
-    inner class BibleVIewHolder(view: View):RecyclerView.ViewHolder(view) {
-            fun bind(book: Book){
-                itemView.findViewById<TextView>(R.id.textVIew).text = book.name
-            }
+    abstract class BibleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        open fun bind(book: BookUi) {
+        }
 
+        class FullsScreenProgress(view: View) : BibleViewHolder(view)
+
+        class Base(view: View) : BibleViewHolder(view) {
+            private val name = itemView.findViewById<TextView>(R.id.textVIew)
+            override fun bind(book: BookUi) {
+                book.map(object : BookUi.StringMapper {
+                    override fun map(text: String) {
+                        name.text = text
+                    }
+                })
+            }
+        }
+
+        class Fail(view: View,private val retry: Retry) : BibleViewHolder(view) {
+            private val message = itemView.findViewById<TextView>(R.id.messageTextView)
+            private val button = itemView.findViewById<Button>(R.id.tryAgainButton)
+            override fun bind(book: BookUi) {
+                book.map(object : BookUi.StringMapper {
+                    override fun map(text: String) {
+                        message.text = text
+                    }
+                })
+                button.setOnClickListener {
+                    retry.tryAgain()
+                }
+            }
+        }
     }
 
+    interface Retry {
+        fun tryAgain()
+    }
+    private fun Int.makeView(parent: ViewGroup) =
+        LayoutInflater.from(parent.context).inflate(this, parent, false)
 }
