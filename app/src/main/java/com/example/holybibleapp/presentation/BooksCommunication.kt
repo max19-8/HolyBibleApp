@@ -22,7 +22,5 @@ interface BooksCommunication:Abstract.Mapper {
         override fun observe(owner: LifecycleOwner, observer: Observer<List<BookUi>>) {
             listLiveData.observe(owner, observer)
         }
-
-
     }
 }

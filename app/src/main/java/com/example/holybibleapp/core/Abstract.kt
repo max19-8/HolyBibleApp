@@ -7,5 +7,4 @@ abstract class Abstract {
     }
 
     interface Mapper
-
 }
